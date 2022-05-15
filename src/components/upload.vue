@@ -18,11 +18,18 @@
                     label="商品描述"
                     required
                   ></v-text-field>
-                  <v-text-field
-                    v-model="item.categories"
-                    label="类型"
-                    required
-                  ></v-text-field>
+                  <v-menu offset-y>
+                    <template v-slot:activator="{ on, attrs }">
+                      <v-btn color="primary" dark v-bind="attrs" v-on="on" >
+                        选择类型
+                      </v-btn>
+                    </template>
+                    <v-list>
+                      <v-list-item v-for="(item, index) in items" :key="index"  @click="cate(item.title)">
+                        <v-list-item-title>{{ item.title }}</v-list-item-title>
+                      </v-list-item>
+                    </v-list>
+                  </v-menu>
                   <v-text-field
                     v-model="item.price"
                     label="价格"
@@ -56,7 +63,7 @@
       商品已经上传,可以继续上传商品
       <template v-slot:action="{ attrs }">
         <v-btn color="red" text v-bind="attrs" @click="snackbar = false">
-           知道了
+          知道了
         </v-btn>
       </template>
     </v-snackbar>
@@ -66,25 +73,32 @@
 <script>
 import Product from "../../services/product";
 export default {
-  data () {
+  data() {
     return {
-    valid: true,
-    files: null,
-    files: {},
-    loading: false,
-    snackbar: false,
-    multiLine: true,
-    item: {
-      title: "",
-      email: "",
-      desc: "",
-      price: "",
-      categories:"",
-      userId:""
-    },
-    test: "test",
-    user:this.$store.state.auth.user
-  }
+      valid: true,
+      files: null,
+      files: {},
+      loading: false,
+      snackbar: false,
+      multiLine: true,
+      item: {
+        title: "",
+        email: "",
+        desc: "",
+        price: "",
+        categories: "",
+        userId: "",
+      },
+      test: "test",
+      user: this.$store.state.auth.user,
+      items: [
+        { title: "电影" },
+        { title: "美妆" },
+        { title: "体育" },
+        { title: "图书" },
+        { title: "交通工具" }
+      ],
+    };
   },
   methods: {
     validate() {
@@ -98,7 +112,7 @@ export default {
     },
     submit() {
       if (this.files) {
-        this.item.userId=this.user.id
+        this.item.userId = this.user.id;
         let formData = new FormData();
         for (let file of this.files) {
           formData.append("files", file, file.name);
@@ -119,9 +133,12 @@ export default {
             console.log(err);
           });
       } else {
-          console.log("未上传文件.");
+        console.log("未上传文件.");
       }
     },
+    cate(id){
+      this.item.categories=id
+    }
   },
 };
 </script>

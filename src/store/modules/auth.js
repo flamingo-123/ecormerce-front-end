@@ -3,7 +3,8 @@ const state = {
   url: process.env.VUE_APP_URL,
   token: localStorage.getItem('token') || null,
   user: JSON.parse(localStorage.getItem('user')) || null,
-  isUserLoggedIn: localStorage.getItem('token') || false
+  isUserLoggedIn: localStorage.getItem('token') || false,
+  count:localStorage.getItem('count') || 0
 }
 
 const getters = {
@@ -18,6 +19,9 @@ const getters = {
   },
   currentUser: (state) => {
     return state.user
+  },
+  OrderCount: (state) => {
+    return state.count
   }
 }
 
@@ -31,13 +35,25 @@ const mutations = {
     }
   },
   SET_USER_DATA(state, data) {
-    state.user = data
+    state.user = data.user
+    state.count= data.Count
   },
   CLEAR_AUTH(state) {
     state.token = null
     state.user = null
     state.isUserLoggedIn = false
+    state.count=0
+  },
+  SET_COUNT(state){
+    state.count++
+  },
+  DELETE_COUNT(state){
+    state.count--
+  },
+  clearCount(state){
+     state.count=0
   }
+
 }
 
 const actions = {
@@ -66,14 +82,28 @@ const actions = {
   setUserData({ commit }, data) {
     return new Promise((resolve, reject) => {
       localStorage.setItem('user',JSON.stringify(data.user))
-      commit('SET_USER_DATA', data.user)
+      localStorage.setItem('count',data.Count)
+      commit('SET_USER_DATA', data)
       resolve(data)
     })
   },
   signOut({ commit }) {
     localStorage.removeItem('token')
     localStorage.removeItem('user')
+    localStorage.removeItem('count')
     commit('CLEAR_AUTH')
+  },
+  count({commit},data) {
+    commit('SET_COUNT')
+    localStorage.setItem('count',++data)
+  },
+  DELETE_COUNT({commit,data}){
+    commit('DELETE_COUNT')
+    localStorage.setItem('count',--data)
+  },
+  clearCount({commit}){
+    commit('clearCount')
+    localStorage.setItem('count',0)
   }
 }
 

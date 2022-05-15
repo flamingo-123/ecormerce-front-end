@@ -1,15 +1,12 @@
 <template>
   <div class="mx-3">
-    <h2 class="mt-2 grey--text">全部商品</h2>
+    <h2 class="mt-2 grey--text">热门推荐</h2>
     <v-container fluid>
       <v-row>
         <v-col cols="12" sm="3" :key="item.id" v-for="item in items">
           <v-hover v-slot="{ hover }" open-delay="200">
             <v-card :elevation="hover ? 16 : 2" :class="{ 'on-hover': hover }">
-              <v-img
-                height="250"
-                :src="item.img"
-              ></v-img>
+              <v-img height="250" :src="item.img"></v-img>
               <v-card-title class="subtitle-2"> {{ item.title }}</v-card-title>
               <v-card-text>
                 <v-row align="center" class="mx-0">
@@ -42,7 +39,7 @@
                   买卖聊天</v-btn
                 >
 
-                <v-btn elevation="2" text small color="primary">
+                <v-btn elevation="2" text small color="primary"   @click="addCollect(item._id)">
                   加入收藏</v-btn
                 >
               </v-card-actions>
@@ -65,32 +62,29 @@
       </v-row>
     </v-container>
 
-    <v-dialog
-      v-model="show"
-      max-width="290"
-    >
+    <v-dialog v-model="show" max-width="290">
       <v-card>
-        <v-card-title class="text-h5">
-         是否加入购物车?
-        </v-card-title>
-        <v-card-text>
-        加入购物车后可以在订单信息中查看和付款。
-        </v-card-text>
+        <v-card-title class="text-h5"> 是否加入购物车? </v-card-title>
+        <v-card-text> 加入购物车后可以在订单信息中查看和付款。 </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn
-            color="green darken-1"
-            text
-            @click="show= false"
-          >
+          <v-btn color="green darken-1" text @click="show = false">
             取消
           </v-btn>
-          <v-btn
-            color="green darken-1"
-            text
-             @click="createOrders"
-          >
+          <v-btn color="green darken-1" text @click="createOrders">
             加入购物车
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+      <v-dialog v-model="warn" max-width="290">
+      <v-card>
+        <v-card-title class="text-h5"> 已经加入了购物车 </v-card-title>
+        <v-card-text> 请不要反复加入 </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="green darken-1" text @click="warn = false">
+            取消
           </v-btn>
         </v-card-actions>
       </v-card>
@@ -100,6 +94,7 @@
 <script>
 import Product from "../../services/product";
 import Order from "../../services/cart";
+import Shelf from "../../services/shelf";
 
 export default {
   data() {
@@ -108,48 +103,74 @@ export default {
       items: [],
       count: 0,
       show: false,
-      user:this.$store.state.auth.user,
-      productId:''
+      user: this.$store.state.auth.user,
+      productId: "",
+      warn:false
     };
   },
   created() {
     this.loadProduct();
   },
-
   methods: {
     async loadProduct() {
       await Product.loadAllProduct({
         limit: 4,
         page: this.page,
+        condition: 1,
       })
         .then((res) => {
-          this.items = res.data.data, 
-          this.count = res.data.totalPage;
+          (this.items = res.data.data), (this.count = res.data.totalPage);
         })
         .catch((err) => {
           console.log(err);
         });
     },
     async createOrders() {
-       if(this.user===null){
-         this.$router.push({ name: "SignIn" });
-       }
-     
-        await Order.createOrder({
-        userId:   this.user.id,
-        productId:this.productId,
+      if (this.user === null) {
+        this.$router.push({ name: "SignIn" });
+      }
+      await this.$store
+        .dispatch("count", this.$store.state.auth.count)
+        .catch((err) => console.log(err));
+        
+      await Order.createOrder({
+        userId: this.user.id,
+        productId: this.productId,
         amount: "1",
       })
         .then((res) => {
           this.show = false;
-          console.log(res)
+        })
+        .catch((err) => console.log(err));
+    },
+    async change(id) {
+      this.productId = id;
+      await Order.findOrder({
+        userId: this.user.id,
+        productId: this.productId,
+      })
+        .then((res) => {
+          if (res.data != null) {
+            this.warn=true;
+          } else {
+            this.show = true;
+          }
         })
        .catch((err) => console.log(err));
     },
-    change(id){
-      this.show=true;
-      this.productId=id
-    }
+    async addCollect(id){
+        await Shelf.addCollect({
+            userId: this.user.id,
+            collects:id
+        }).then((res)=>{
+          if(res.status=="201"){
+             this.warn=true
+          }
+        }).catch((err)=>{
+           console.log(err)
+        })
+    },
+      
   },
 };
 </script>

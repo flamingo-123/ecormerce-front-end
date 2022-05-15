@@ -15,21 +15,25 @@
             </v-card>
           </v-col>
           <v-col v-for="(item, $index) in list" :key="$index" cols="12">
-            <v-card :color="color">
+            <v-card :color="list[$index].color">
               <div
                 class="d-flex flex-no-wrap justify-space-between align-center"
               >
                 <v-avatar class="ma-3" size="125" tile>
-                  <v-img
-                    :src="item.productId[0].img"
-                  ></v-img>
+                  <v-img :src="item.productId[0].img"></v-img>
                 </v-avatar>
                 <v-card-text
                   class="text-h10"
-                  v-text="item.productId[0].title"
-                ></v-card-text>
+                >名称:{{item.productId[0].title}}</v-card-text>
                 <v-card-text class="text-h10"
-                  >价格{{ item.productId[0].price }}元</v-card-text
+                  >价格:{{ item.productId[0].price }}元</v-card-text
+                >
+                 
+                 <v-card-text class="text-h10" 
+                  >
+                  <span v-if="item.productId[0].condition=1">在售状态:未出售</span>
+                  <span v-else>在售状态:已出售</span>
+                  </v-card-text
                 >
                 <div>
                   <v-card-actions>
@@ -43,41 +47,54 @@
                   <v-card-actions>
                     <v-btn
                       class="ml-2 mt-5 text-h10"
-                      @click="income(item.productId[0].price, $index)"
+                      @click="income(item.productId[0].price, $index, item)"
+                      :disabled="item.btn"
                     >
                       加入结算
+                    </v-btn></v-card-actions
+                  >
+                  <v-card-actions>
+                    <v-btn
+                      class="ml-2 mt-5 text-h10"
+                      @click="cancleIncome($index, item)"
+                    >
+                      取消结算
                     </v-btn></v-card-actions
                   >
                 </div>
               </div>
             </v-card>
           </v-col>
-          <v-col cols="12">
-            <v-card id="top" width="878px">
-              <div
-                class="d-flex flex-no-wrap justify-space-between align-center"
-              >
-                <v-card-text class="text-h10"
-                  >选中商品{{ totalNum }}</v-card-text
-                >
-                <v-card-text class="text-h10">总价{{ totalPrice }}</v-card-text>
-                <v-card-actions>
-                  <v-btn class="ml-2 mt-5 text-h10 error" @click="payOrder">
-                    结算
-                  </v-btn></v-card-actions
-                >
-              </div>
-            </v-card>
-          </v-col>
         </v-row>
+        <v-footer bottom fixed padless>
+          <v-row>
+            <v-col cols="12">
+              <v-card>
+                <div
+                  class="d-flex flex-no-wrap justify-space-between align-center"
+                >
+                  <v-card-text class="text-h10"
+                    >选中商品{{ totalNum }}</v-card-text
+                  >
+                  <v-card-text class="text-h10"
+                    >总价{{ totalPrice }}</v-card-text
+                  >
+                  <v-card-actions>
+                    <v-btn class="ml-2 mt-5 text-h10 error" @click="payOrder">
+                      结算
+                    </v-btn></v-card-actions
+                  >
+                </div>
+              </v-card>
+            </v-col>
+          </v-row>
+        </v-footer>
       </v-container>
     </v-card>
-
     <infinite-loading @infinite="infiniteHandler"></infinite-loading>
     <div></div>
   </div>
 </template>
-
 <script>
 import InfiniteLoading from "vue-infinite-loading";
 import Order from "../../services/cart";
@@ -89,27 +106,32 @@ export default {
       color: "#FFFFFF",
       colorId: false,
       total: 0,
-      // id: this.$store.state.auth.user.id,
       priceList: [],
       totalPrice: 0,
       totalNum: 0,
       repeate: false,
       user: this.$store.state.auth.user,
+      OrderId: "",
+      shopList: []
     };
   },
 
   methods: {
     async infiniteHandler($state) {
-      console.log(this.user.id)
       await Order.loadOrders({
         limit: 4,
         page: this.page,
-        id:   this.user.id,
+        id: this.user.id,
+        payed: false,
       })
         .then((res) => {
           if (res.data.Orders.length > 0) {
             this.page += 1;
             this.list.push(...res.data.Orders);
+            this.list.forEach((element) => {
+              element.btn = false;
+              element.color = "";
+            });
             this.total = res.data.count;
             $state.loaded();
           } else {
@@ -120,24 +142,46 @@ export default {
           console.log(err);
         });
     },
-    // 计算数量
-    income(price, valueIndex) {
-      console.log(this.priceList);
-      const infor = this.priceList.forEach((element) => {
-       if ((element.valueIndex = valueIndex)) {
-          console.log("已经加入了购物车");
-        } else {
-          return "没有加入购物车";
-        }
-      })
-      this.priceList.push({ price, valueIndex });
+    sum() {
       this.totalPrice = this.priceList.reduce((total, item) => {
         total += item.price;
         return total;
       }, 0);
       this.totalNum = this.priceList.length;
     },
+    // 计算数量
+    income(price, valueIndex, item) {
+      item.color = "grey";
+      item.btn = true;
+      this.priceList.push({ price, valueIndex });
+      this.shopList.push(item._id);
+      this.priceList.forEach((element) => {
+        if (element.valueIndex === valueIndex) {
+          console.log("已经加入了购物车");
+        } else {
+          console.log("加入了购物车");
+        }
+      });
+      this.sum();
+    },
+    cancleIncome(valueIndex, item) {
+      item.color = "";
+      item.btn = false;
+      this.priceList.forEach((element) => {
+        if (element.valueIndex === valueIndex) {
+          this.priceList.splice(valueIndex, 1);
+          console.log("已经取消了购物车");
+        } else {
+          console.log("未加入了购物车");
+        }
+        this.sum();
+      });
+    },
+
     async deleteItem(id) {
+      await this.$store
+        .dispatch("DELETE_COUNT",this.$store.state.auth.count)
+        .catch((err) => console.log(err));
       await Order.deleteOrders({
         id: id,
       })
@@ -151,9 +195,20 @@ export default {
         });
     },
     async payOrder() {
-      await Order.pay()
+      await Order.payOrder({ userId: this.user, products: this.shopList })
         .then((res) => {
-          console.log(res);
+          console.log(this.shopList)
+          this.OrderId = res.data._id;
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+      await Order.pay({
+        totalPrice: this.totalPrice,
+        OrderId: this.OrderId,
+        priceList: this.priceList,
+      })
+        .then((res) => {
           window.location.href = res.data.result;
         })
         .catch((err) => {
@@ -161,9 +216,13 @@ export default {
         });
     },
     async clearOrders() {
+
+      await this.$store
+        .dispatch("clearCount")
+        .catch((err) => console.log(err));
       await Order.clearOrder()
         .then((res) => {
-          (this.list = []),
+            (this.list = []),
             (this.priceList = []),
             (this.totalPrice = 0),
             (this.totalNum = 0),
@@ -174,7 +233,7 @@ export default {
         });
     },
   },
-
+  watch: {},
   components: {
     InfiniteLoading,
   },

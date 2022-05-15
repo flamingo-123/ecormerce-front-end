@@ -10,6 +10,13 @@ const routes = [
     }
   },
   {
+    path: "/paySuccess",
+    name: "paySuccess",
+    components: {
+      default: () => import('../views/paySuccess.vue')
+    }
+  },
+  {
     path: '/signin',
     name: 'SignIn',
     component: () =>
@@ -41,15 +48,28 @@ const routes = [
     path: '/upload',
     name: 'upload',
     component: () =>
-      import(/* webpackChunkName: "signup" */ '../components/upload.vue'),
-    // meta: { requiresVisitor: true }
+      import('../components/upload.vue'),
   },
   {
-    path: '/shelf',
+    path: '/Shelf',
     name: 'shelf',
     component: () =>
-      import(/* webpackChunkName: "signup" */ '../components/shelf.vue'),
-    // meta: { requiresVisitor: true }
+      import('../components/shelf.vue'),
+
+  },
+  {
+    path: '/payed',
+    name: 'payed',
+    component: () =>
+      import('../components/payed.vue'),
+
+  },
+  {
+    path: '/myShop',
+    name: 'myShop',
+    component: () =>
+      import('../components/myShop.vue'),
+
   }
 
 ]
@@ -62,7 +82,7 @@ const router = new VueRouter({
 
 router.beforeEach((to, from, next) => {
   const user = JSON.parse(window.localStorage.getItem('user'))
-  if (to.path === '/upload' || to.path === '/cart') {
+  if (to.path === '/upload' || to.path === '/cart' || to.path === '/Shelf' ) {
     if (user) {
       next()
     } else {
