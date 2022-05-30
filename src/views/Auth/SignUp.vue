@@ -5,8 +5,8 @@
         <v-card class="" outlined :loading="loading" elevation="8" title>
           <v-row class="justify-space-between px-4 pt-6 pb-12">
             <v-col cols="12" sm="12" md="6">
-              <v-card-title class="text-center">旧淘</v-card-title>
-              <v-card-subtitle class="mb-5">创建你的旧淘账户</v-card-subtitle>
+              <v-card-title class="text-center">校园二手平台</v-card-title>
+              <v-card-subtitle class="mb-5">创建你的账户</v-card-subtitle>
               <v-card-text>
                 <ValidationObserver ref="form" v-slot="{ handleSubmit, reset }">
                   <form
@@ -246,6 +246,9 @@
             </v-col>
           </v-row>
         </v-card>
+        <v-btn class="mx-2" fab dark large color="purple" id="bottom" @click="home">
+          首页
+        </v-btn>
       </v-col>
     </v-row>
   </v-container>
@@ -264,15 +267,18 @@ export default {
     loading: false,
   }),
   methods: {
-    async signUp() {
+       home(){
+        this.$router.push({ name: "Home" });
+      },
+      async signUp() {
       this.loading = true;
       const data = await this.$store
         .dispatch("signUp", {
           email: this.email,
           username: this.userName,
           password: this.password,
-          phone:this.phone,
-          schoolName:this.schoolName
+          phone: this.phone,
+          schoolName: this.schoolName,
         })
         .catch((err) => {
           this.loading = false;
@@ -293,7 +299,7 @@ export default {
 
       if (!data) return;
       const user = await this.$store
-        .dispatch("setUserData", data.token)
+        .dispatch("setUserData1", data)
         .catch((err) => console.log(err));
       if (!user) return;
       this.loading = false;
@@ -303,4 +309,9 @@ export default {
 };
 </script>
 
-<style></style>
+<style>
+#bottom {
+  position: fixed;
+  right:0px;
+  bottom: 0px;
+}</style>

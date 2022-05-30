@@ -87,6 +87,13 @@ const actions = {
       resolve(data)
     })
   },
+  setUserData1({ commit }, data) {
+    return new Promise((resolve, reject) => {
+      localStorage.setItem('user',JSON.stringify(data.user))
+      localStorage.setItem('count',0)
+      resolve(data)
+    })
+  },
   signOut({ commit }) {
     localStorage.removeItem('token')
     localStorage.removeItem('user')

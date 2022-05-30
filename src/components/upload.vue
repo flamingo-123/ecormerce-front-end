@@ -13,19 +13,24 @@
                     label="商品名称"
                     required
                   ></v-text-field>
-                  <v-text-field
-                    v-model="item.desc"
+                  <v-textarea
+                    clearable
+                    clear-icon="mdi-close-circle"
                     label="商品描述"
-                    required
-                  ></v-text-field>
+                    v-model="item.desc"
+                  ></v-textarea>
                   <v-menu offset-y>
                     <template v-slot:activator="{ on, attrs }">
-                      <v-btn color="primary" dark v-bind="attrs" v-on="on" >
+                      <v-btn color="primary" dark v-bind="attrs" v-on="on">
                         选择类型
                       </v-btn>
                     </template>
                     <v-list>
-                      <v-list-item v-for="(item, index) in items" :key="index"  @click="cate(item.title)">
+                      <v-list-item
+                        v-for="(item, index) in items"
+                        :key="index"
+                        @click="cate(item.title)"
+                      >
                         <v-list-item-title>{{ item.title }}</v-list-item-title>
                       </v-list-item>
                     </v-list>
@@ -38,11 +43,19 @@
                   <v-file-input
                     show-size
                     multiple
-                    label="上传图片"
-                    placeholder="上传图片"
+                    label="上传图片和视频"
+                    placeholder="上传图片和视频"
                     ref="myfile"
                     v-model="files"
                   ></v-file-input>
+                  <!-- <v-file-input
+                    show-size
+                    multiple
+                    label="视频"
+                    placeholder="上传视频"
+                    ref="myfile"
+                    v-model="videoFiles"
+                  ></v-file-input> -->
                   <v-btn
                     class="mr-4"
                     @click="submit"
@@ -67,6 +80,9 @@
         </v-btn>
       </template>
     </v-snackbar>
+    <v-btn class="mx-2" fab dark large color="purple" id="bottom" @click="home">
+      首页
+    </v-btn>
   </div>
 </template>
 
@@ -78,6 +94,7 @@ export default {
       valid: true,
       files: null,
       files: {},
+      videoFiles: {},
       loading: false,
       snackbar: false,
       multiLine: true,
@@ -92,15 +109,19 @@ export default {
       test: "test",
       user: this.$store.state.auth.user,
       items: [
-        { title: "电影" },
+        { title: "图书" },
         { title: "美妆" },
         { title: "体育" },
-        { title: "图书" },
-        { title: "交通工具" }
+        { title: "电子产品" },
+        { title: "交通工具" },
+        { title: "服饰" },
       ],
     };
   },
   methods: {
+    home() {
+      this.$router.push({ name: "Home" });
+    },
     validate() {
       this.$refs.form.validate();
     },
@@ -128,6 +149,9 @@ export default {
             for (let i in this.item) {
               this.item[i] = "";
             }
+            this.files = {};
+            this.videoFiles = {};
+            this.reset();
           })
           .catch((err) => {
             console.log(err);
@@ -136,12 +160,17 @@ export default {
         console.log("未上传文件.");
       }
     },
-    cate(id){
-      this.item.categories=id
-    }
+    cate(id) {
+          this.item.categories = id;
+    },
   },
 };
 </script>
 
 <style>
+#bottom {
+  position: fixed;
+  right: 0px;
+  bottom: 0px;
+}
 </style>

@@ -5,6 +5,8 @@ import store from './store'
 import vuetify from './plugins/vuetify'
 import InfiniteLoading from 'vue-infinite-loading';
 Vue.use(InfiniteLoading);
+import VueSocketIO from 'vue-socket.io'
+import SocketIO from 'socket.io-client'
 import { required, email, max, min, size, oneOf ,regex} from 'vee-validate/dist/rules'
 import {
   extend,
@@ -47,8 +49,6 @@ extend('phone',{
    return /[1]\d{10}/.test(value);}  
 });
 
-
-
 extend('size', {
   ...size,
   message: 'video size should be less than 5 MB!'
@@ -77,7 +77,25 @@ Vue.component('ValidationObserver', ValidationObserver)
 
 // Vue.component('InfiniteLoading', InfiniteLoading)
 
-
+Vue.use(
+  new VueSocketIO({
+    debug: false, // debug调试，生产建议关闭
+    options: {     //Optional options, 
+      autoConnect:false, //关闭自动连接，在用户登录后在连接。
+    },
+    connection: SocketIO('http://127.0.0.1:3002'),//服务端地址
+    extraHeaders: {
+      'Access-Control-Allow-Credentials': true
+    },
+    allowEIO3: true,
+    // vuex: {
+    //   store,
+    //   actionPrefix: 'SOCKET_',
+    //   mutationPrefix: 'SOCKET_'
+    // },
+   
+  })
+);
 
 new Vue({
   router,

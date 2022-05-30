@@ -3,20 +3,13 @@
     <v-container fluid class="py-0 fill-height">
       <v-app-bar flat class="mt-4" elevation="24">
         <v-row align="center" justify="start">
-          <v-col cols="12" sm="3">
+          <v-col cols="12" sm="3" class="d-flex">
             <v-btn color="orange" outlined dark @click="drawer = true">
               {{ title }}
             </v-btn>
           </v-col>
-          <v-col cols="12" sm="3">
-            <v-text-field
-              flat
-              hide-details
-              append-icon="mdi-magnify"
-              placeholder="淘点喜欢的吧...."
-              outlined
-              dense
-            ></v-text-field>
+          <v-col cols="12" sm="2" class="d-flex">
+            <v-select :items="items" label="区域选择" dense outlined></v-select>
           </v-col>
           <!-- <v-subheader>选择价格区间</v-subheader> -->
           <v-col class="px-4" cols="12" sm="5">
@@ -96,7 +89,9 @@
         </v-col>
       </v-row>
     </v-container>
-    <infinite-loading @infinite="infiniteHandler"></infinite-loading>
+    <infinite-loading @infinite="infiniteHandler" :identifier="infiniteId">
+      <span slot="no-more"> 显示到底部 </span>
+    </infinite-loading>
   </v-app>
 </template>
 <script>
@@ -111,6 +106,9 @@ export default {
       min: -50,
       max: 90,
       range: [],
+      search: false,
+      infiniteId: +new Date(),
+      items: ["本校", "外校"],
     };
   },
   created() {
@@ -118,15 +116,11 @@ export default {
     this.getPrice();
   },
   methods: {
-    price() {
-      console.log(this.range[0]);
-    },
     async getPrice() {
       await Product.getProductPrice({
         categories: this.title,
       })
         .then((res) => {
-          console.log(res.data);
           if (res.data[1] == res.data[0]) {
             this.range.push(res.data[1]);
           } else {
@@ -138,24 +132,53 @@ export default {
           console.log(err);
         });
     },
+
     async infiniteHandler($state) {
-      await Product.getSpecialProduct({
-        limit: 4,
-        page: this.page,
-        categories: this.title,
-      })
-        .then((res) => {
-          if (res.data.data.length > 0) {
-            this.page += 1;
-            this.list.push(...res.data.data);
-            $state.loaded();
-          } else {
-            $state.complete();
-          }
+      if (this.search == false) {
+        await Product.getSpecialProduct({
+          limit: 4,
+          page: this.page,
+          categories: this.title,
         })
-        .catch((err) => {
-          console.log(err);
-        });
+          .then((res) => {
+            if (res.data.data.length > 0) {
+              this.page += 1;
+              this.list.push(...res.data.data);
+              $state.loaded();
+            } else {
+              $state.complete();
+            }
+          })
+          .catch((err) => {
+            console.log(err);
+          });
+      } else {
+        await Product.getPriceProduct({
+          categories: this.title,
+          min: this.range[0],
+          max: this.range[1],
+          limit: 4,
+          page: this.page,
+        })
+          .then((res) => {
+            if (res.data.products.length > 0) {
+              this.page++;
+              this.list.push(...res.data.products);
+              $state.loaded();
+            } else {
+              $state.complete();
+            }
+          })
+          .catch((err) => {
+            console.log(err);
+          });
+      }
+    },
+    async price() {
+      this.search = true;
+      this.page = 1;
+      this.list = [];
+      this.infiniteId += 1;
     },
   },
   components: {

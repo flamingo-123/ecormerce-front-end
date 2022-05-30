@@ -70,7 +70,21 @@ const routes = [
     component: () =>
       import('../components/myShop.vue'),
 
-  }
+  },
+  {
+    path: '/chat',
+    name: 'chat',
+    component: () =>
+      import('../components/chat.vue'),
+
+  },
+  {
+    path:"/product/:id",
+    name: 'Home',
+    component: () =>
+    import('../components/Product.vue'),
+
+  },
 
 ]
 
@@ -82,7 +96,7 @@ const router = new VueRouter({
 
 router.beforeEach((to, from, next) => {
   const user = JSON.parse(window.localStorage.getItem('user'))
-  if (to.path === '/upload' || to.path === '/cart' || to.path === '/Shelf' ) {
+  if (to.path === '/upload' || to.path === '/cart' || to.path === '/Shelf' || to.path === '/payed'  || to.path === '/myShop') {
     if (user) {
       next()
     } else {

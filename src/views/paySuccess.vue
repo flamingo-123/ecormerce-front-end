@@ -18,11 +18,8 @@ export default {
     trade_no :this.$route.query.trade_no
     }
     Order.queryOrder(data).then((res)=>{
-      console.log(res)
       this.msg=res.data.msg
-      if(res.data.code='200'){
       this.$router.push({ name: "Home" });
-      }
     })
 },
 }

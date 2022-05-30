@@ -24,14 +24,16 @@
                 </v-avatar>
                 <v-card-text
                   class="text-h10"
-                >名称:{{item.noteDocs1[0].title}}</v-card-text>
+                >名称: {{item.noteDocs1[0].title}}</v-card-text>
                 <v-card-text class="text-h10"
                   >价格:{{ item.noteDocs1[0].price }}元</v-card-text
                 >
                  <v-card-text class="text-h10" 
                   >
                   <span v-if="item.noteDocs1[0].condition=1">在售状态:未出售</span>
-                  <span v-else>在售状态:已出售</span>
+                  <span v-else-if="item.noteDocs1[0].condition=2">在售状态:已出售</span>
+                  <span v-else-if="item.noteDocs1[0].condition=3">在售状态:已下架</span>
+                  <span v-else>在售状态:商品已删除</span>
                   </v-card-text
                 >
                 <div>
@@ -40,7 +42,15 @@
                       class="ml-2 mt-5 text-h10"
                       @click="clearCollect(item.noteDocs1[0]._id)"
                     >
-                      删除收藏商品
+                      删除收藏的商品
+                    </v-btn></v-card-actions
+                  >
+                   <v-card-actions>
+                    <v-btn
+                      class="ml-2 mt-5 text-h10"
+                     @click="createOrders(item.nid)"
+                    >
+                      商品加入购物车
                     </v-btn></v-card-actions
                   >
                 </div>
@@ -51,23 +61,16 @@
       </v-container>
     </v-card>
     <infinite-loading @infinite="infiniteHandler"></infinite-loading>
-     <v-dialog v-model="warn" max-width="290">
-      <v-card>
-        <v-card-title class="text-h5"> 已经加入了收藏 </v-card-title>
-        <v-card-text> 请不要反复加入收藏 </v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="green darken-1" text @click="warn = false">
-            取消
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+    <v-btn class="mx-2" fab dark large color="purple" id="bottom" @click="home">
+          首页
+        </v-btn>
   </div>
 </template>
 <script>
 import InfiniteLoading from "vue-infinite-loading";
 import Shelf from "../../services/shelf";
+import Product from "../../services/product";
+import Order from "../../services/cart";
 export default {
   data() {
     return {
@@ -83,6 +86,9 @@ export default {
   },
 
   methods: {
+       home(){
+        this.$router.push({ name: "Home" });
+      },
     async infiniteHandler($state) {
       await  Shelf.getCollects({
         limit: 4,
@@ -90,6 +96,7 @@ export default {
         id: this.user.id,
       })
         .then((res) => {
+          console.log(res)
           if (res.data.length > 0) {
             this.page += 1;
             this.list.push(...res.data);
@@ -98,7 +105,7 @@ export default {
               element.color = "";
             });
             this.total = res.data.length;
-            console.log(this.total,this.list)
+         
             $state.loaded();
           } else {
             $state.complete();
@@ -135,7 +142,27 @@ export default {
           console.log("123")
            this.warn=true
         })
-    }
+    },
+
+     async createOrders(id) {
+      if (this.user === null) {
+        this.$router.push({ name: "SignIn" });
+      }
+      await this.$store
+        .dispatch("count", this.$store.state.auth.count)
+        .catch((err) => console.log(err));
+
+      await Order.createOrder({
+        userId: this.user.id,
+        productId: id,
+        amount: "1",
+      })
+        .then((res) => {
+          console.log(res)
+          this.warn=true
+        })
+        .catch((err) => console.log(err));
+    },
   },
   watch: {},
   components: {
@@ -146,6 +173,11 @@ export default {
 <style scoped>
 #top {
   position: fixed;
+  bottom: 0px;
+}
+#bottom {
+  position: fixed;
+  right:0px;
   bottom: 0px;
 }
 </style>
