@@ -7,6 +7,8 @@ import InfiniteLoading from 'vue-infinite-loading';
 Vue.use(InfiniteLoading);
 import VueSocketIO from 'vue-socket.io'
 import SocketIO from 'socket.io-client'
+import VueVirtualScroller from 'vue-virtual-scroller'
+Vue.use(VueVirtualScroller)
 import { required, email, max, min, size, oneOf ,regex} from 'vee-validate/dist/rules'
 import {
   extend,

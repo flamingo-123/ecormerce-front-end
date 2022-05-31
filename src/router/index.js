@@ -69,18 +69,16 @@ const routes = [
     name: 'myShop',
     component: () =>
       import('../components/myShop.vue'),
-
   },
   {
     path: '/chat',
     name: 'chat',
     component: () =>
       import('../components/chat.vue'),
-
   },
   {
     path:"/product/:id",
-    name: 'Home',
+    name: 'Product',
     component: () =>
     import('../components/Product.vue'),
 

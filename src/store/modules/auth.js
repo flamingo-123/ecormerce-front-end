@@ -6,7 +6,6 @@ const state = {
   isUserLoggedIn: localStorage.getItem('token') || false,
   count:localStorage.getItem('count') || 0
 }
-
 const getters = {
   getUrl: (state) => {
     return state.url
@@ -118,5 +117,6 @@ export default {
   state,
   getters,
   mutations,
-  actions
+  actions,
+  namespaced:true
 }
