@@ -172,7 +172,6 @@ export default {
       return Array.from({ length: 10000 }, (k, v) => {
         const name = this.names[this.genRandomIndex(namesLength)];
         const surname = this.surnames[this.genRandomIndex(surnamesLength)];
-
         return {
           color: this.colors[this.genRandomIndex(colorsLength)],
           fullName: `${name} ${surname}`,

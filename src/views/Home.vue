@@ -123,7 +123,7 @@
               </template>
               <v-list rounded align="center" justify="center">
                 <v-avatar color="orange" size="36" v-show="show">
-                  <span class="white--text text-h5" >{{ username }}</span>
+                  <!-- <span class="white--text text-h5" >{{ username }}</span> -->
                 </v-avatar>
                 <v-list-item-group v-model="selectedItem" color="primary">
                   <v-list-item
@@ -233,7 +233,7 @@ export default {
     return {
       model: 0,
       bandge: false,
-      username: "",
+      // username: "",
       count: "",
       // count: this.$store.state.auth.count,
       // username:this.$store.state.auth.user.count,
@@ -313,7 +313,7 @@ export default {
   mounted () {
     this.show = this.$store.state.auth.isUserLoggedIn;
     this.count = this.$store.state.auth.count;
-    this.username = this.$store.state.auth.user.username;;
+    // this.username = this.$store.state.auth.user.username;;
   },
   watch: {
     count:function (newQuestion, oldQuestion) {

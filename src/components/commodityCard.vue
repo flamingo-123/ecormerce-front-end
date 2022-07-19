@@ -103,7 +103,7 @@
                     text
                     small
                     color="primary"
-                    @click="chat(item.userId)"
+                    @click="chat(item)"
                   >
                     买卖聊天</v-btn
                   >
@@ -351,8 +351,8 @@ export default {
           console.log(err);
         });
     },
-    chat(id) {
-      this.$router.push({ name: "chat" });
+    chat(item) {
+      this.$router.push({ name: "chat" ,params: { username: item }});
     },
     async get() {
       this.search = true;

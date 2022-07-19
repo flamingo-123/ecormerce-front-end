@@ -1,7 +1,7 @@
 <template>
   <div>
     <v-container fluid class="fill-height">
-      <v-row>
+      <v-row >
         <v-col cols="12" xs="12" sm="6" md="5" lg="4" class="ma-auto">
           <v-card outlined :loading="loading" elevation="8" title>
             <div class="px-8 pt-6 pb-12">

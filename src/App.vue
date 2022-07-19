@@ -2,8 +2,7 @@
   <v-app>
     <router-view></router-view>
   </v-app>
-</template>
-
+</template> 
 <script>
 import NavBar from "./components/commodityCard.vue";
 export default {
